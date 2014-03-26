@@ -2,9 +2,9 @@
 
 use strict;
 use v5.10;
-use Getopt::Long;
 use GridBox;
 use Term::ReadKey;
+use Time::HiRes;
 
 my %opts;
 
@@ -31,6 +31,7 @@ sub Main{
    my $routine = \&add_if_equal;
    while (1) {
       while (not defined ($char = ReadKey(-1))) {
+         Time::HiRes::usleep(10000);
       }
       my $ord = ord($char);
       if ($state eq 'waiting_for_start_char') {
