@@ -2,9 +2,9 @@
 
 use strict;
 use v5.10;
-use Getopt::Long;
 use GridBox;
 use Term::ReadKey;
+use Time::HiRes;
 
 my $instructions = "Use the arrow keys to pack all the numbers
 in the grid in a specific direction. Try to combine 
@@ -35,8 +35,6 @@ my %opts;
 
 sub Main{
    $SIG{'INT'} = sub { exit(0) };      # force performing of END block on control c.
-   open STDERR, '>', "error.log"
-   &process_command_line_options();
    print "\033[2J";    #clear the screen
    print "\033[0;0H"; #jump to 0,0
    my $grid = GridBox->new();
@@ -56,6 +54,7 @@ sub Main{
    my $routine = \&add_if_fibonacci_sequence;
    while (1) {
       while (not defined ($char = ReadKey(-1))) {
+         Time::HiRes::usleep(10000);
       }
       my $ord = ord($char);
       if ($state eq 'waiting_for_start_char') {
@@ -154,24 +153,6 @@ sub add_if_fibonacci_sequence {
 }
 
 
-sub process_command_line_options{
-
-	my $return = GetOptions(
-		'begin=s'      => \$opts{begin},
-		'end=s'        => \$opts{end},
-		'help'			=> \$opts{help},
-	);
-
-	if (defined $opts{help}) {
-		print "Help for using .pl\n";
-		print "Arguments:\n";
-		print "  -help\n  This help screen.\n\n";
-		print "  -begin YYYYMMDDHHMM\n\n";
-		exit;
-	}
-	return $return;
-}
-
 sub Log{
    my $msg = shift;
    if ($msg !~ m/\n$/) {
@@ -189,14 +170,9 @@ sub BEGIN{
    # Uncomment the following in order to get the debugger to debug the this routine
    # $DB::single = 1;, 
    
-   # Log Program Start
-   my $args = join ' ', @ARGV;
-   &Log("Starting $$ $0 " . join ' ', @ARGV);
-
 }
 
 sub END{
-   &Log('End');
 
 }
 
