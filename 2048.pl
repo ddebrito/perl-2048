@@ -3,8 +3,6 @@
 use strict;
 use v5.10;
 use GridBox;
-use Term::ReadKey;
-use Time::HiRes;
 
 my %opts;
 
@@ -26,13 +24,19 @@ sub Main{
    my $char;
    my $state = 'waiting_for_start_char';
    my $cnt = 0;
-#   ReadMode 3; 
-   ReadMode 4; # Turn off controls keys
    my $routine = \&add_if_equal;
+   
+   my $BSD = -f '/vmunix';
+   if ($BSD) {
+       system "stty cbreak /dev/tty 2>&1";
+   }
+   else {
+       system "stty", '-icanon',
+       system "stty", 'eol', "\001"; 
+   }
+
    while (1) {
-      while (not defined ($char = ReadKey(-1))) {
-         Time::HiRes::usleep(10000);
-      }
+      $char = getc(STDIN);
       my $ord = ord($char);
       if ($state eq 'waiting_for_start_char') {
          if ($ord == 27) {
@@ -91,7 +95,6 @@ sub Main{
          print "\nUse arrow keys to pack the grid. Type 'x' to exit.\n";
       }
       if ($char eq 'x') {
-         ReadMode 0;
          exit();
       }
    }
